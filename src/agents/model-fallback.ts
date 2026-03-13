@@ -572,7 +572,7 @@ export async function runWithModelFallback<T>(params: {
             error: decision.error,
             reason: decision.reason,
           });
-          logModelFallbackDecision({
+          void logModelFallbackDecision({
             decision: "skip_candidate",
             runId: params.runId,
             requestedProvider: params.provider,
@@ -615,7 +615,7 @@ export async function runWithModelFallback<T>(params: {
               error,
               reason: decision.reason,
             });
-            logModelFallbackDecision({
+            void logModelFallbackDecision({
               decision: "skip_candidate",
               runId: params.runId,
               requestedProvider: params.provider,
@@ -639,7 +639,7 @@ export async function runWithModelFallback<T>(params: {
           }
         }
         attemptedDuringCooldown = true;
-        logModelFallbackDecision({
+        void logModelFallbackDecision({
           decision: "probe_cooldown_candidate",
           runId: params.runId,
           requestedProvider: params.provider,
@@ -749,7 +749,7 @@ export async function runWithModelFallback<T>(params: {
           : "none",
       });
 
-      logModelFallbackDecision({
+      void logModelFallbackDecision({
         decision: "candidate_failed",
         runId: params.runId,
         requestedProvider: params.provider,

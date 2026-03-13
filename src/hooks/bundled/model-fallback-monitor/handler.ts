@@ -20,29 +20,35 @@ const handler: InternalHookHandler = async (event) => {
     }
 
     // Extract context fields (handle both nested and flat field formats)
-    const rawCtx = event.context as Record<string, unknown>;
+    const rawCtx = event.context;
 
     const ctx = {
-      decision: String(rawCtx.decision ?? "unknown"),
-      requestedProvider: String(rawCtx.requestedProvider ?? "unknown"),
-      requestedModel: String(rawCtx.requestedModel ?? "unknown"),
-      candidateProvider: String(rawCtx.candidateProvider ?? "unknown"),
-      candidateModel: String(rawCtx.candidateModel ?? "unknown"),
+      decision: typeof rawCtx.decision === "string" ? rawCtx.decision : "unknown",
+      requestedProvider: typeof rawCtx.requestedProvider === "string" ? rawCtx.requestedProvider : "unknown",
+      requestedModel: typeof rawCtx.requestedModel === "string" ? rawCtx.requestedModel : "unknown",
+      candidateProvider: typeof rawCtx.candidateProvider === "string" ? rawCtx.candidateProvider : "unknown",
+      candidateModel: typeof rawCtx.candidateModel === "string" ? rawCtx.candidateModel : "unknown",
       attempt: typeof rawCtx.attempt === "number" ? rawCtx.attempt : undefined,
       total: typeof rawCtx.total === "number" ? rawCtx.total : undefined,
-      reason: rawCtx.reason ? String(rawCtx.reason) : undefined,
-      error: rawCtx.error ? String(rawCtx.error) : undefined,
+      reason: typeof rawCtx.reason === "string" ? rawCtx.reason : undefined,
+      error: typeof rawCtx.error === "string" ? rawCtx.error : undefined,
       isPrimary: typeof rawCtx.isPrimary === "boolean" ? rawCtx.isPrimary : undefined,
       // Reconstruct nextCandidate from flat fields or direct nextCandidate object
       nextCandidate: (() => {
-        const direct = rawCtx.nextCandidate as Record<string, unknown> | undefined;
-        if (direct?.provider && direct?.model) {
-          return { provider: String(direct.provider), model: String(direct.model) };
+        const direct = rawCtx.nextCandidate;
+        if (
+          direct &&
+          typeof direct === "object" &&
+          typeof (direct as Record<string, unknown>).provider === "string" &&
+          typeof (direct as Record<string, unknown>).model === "string"
+        ) {
+          const obj = direct as Record<string, unknown>;
+          return { provider: String(obj.provider), model: String(obj.model) };
         }
-        if (rawCtx.nextCandidateProvider && rawCtx.nextCandidateModel) {
+        if (typeof rawCtx.nextCandidateProvider === "string" && typeof rawCtx.nextCandidateModel === "string") {
           return {
-            provider: String(rawCtx.nextCandidateProvider),
-            model: String(rawCtx.nextCandidateModel),
+            provider: rawCtx.nextCandidateProvider,
+            model: rawCtx.nextCandidateModel,
           };
         }
         return undefined;
