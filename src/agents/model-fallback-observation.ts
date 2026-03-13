@@ -1,5 +1,6 @@
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { sanitizeForLog } from "../terminal/ansi.js";
+import { createInternalHookEvent, triggerInternalHook } from "../hooks/internal-hooks.js";
 import type { FallbackAttempt, ModelCandidate } from "./model-fallback.types.js";
 import { buildTextObservationFields } from "./pi-embedded-error-observation.js";
 import type { FailoverReason } from "./pi-embedded-helpers.js";
@@ -89,5 +90,32 @@ export function logModelFallbackDecision(params: {
     consoleMessage:
       `model fallback decision: decision=${params.decision} requested=${sanitizeForLog(params.requestedProvider)}/${sanitizeForLog(params.requestedModel)} ` +
       `candidate=${sanitizeForLog(params.candidate.provider)}/${sanitizeForLog(params.candidate.model)} reason=${reasonText} next=${nextText}`,
+  });
+
+  // Trigger internal hook for model fallback events (fire-and-forget)
+  const hookEvent = createInternalHookEvent(
+    "model",
+    "fallback",
+    params.runId || "unknown",
+    {
+      decision: params.decision,
+      requestedProvider: params.requestedProvider,
+      requestedModel: params.requestedModel,
+      candidateProvider: params.candidate.provider,
+      candidateModel: params.candidate.model,
+      attempt: params.attempt,
+      total: params.total,
+      reason: params.reason ?? undefined,
+      status: params.status,
+      code: params.code,
+      error: params.error,
+      nextCandidate: params.nextCandidate,
+      isPrimary: params.isPrimary,
+      requestedModelMatched: params.requestedModelMatched,
+      fallbackConfigured: params.fallbackConfigured,
+    } as Record<string, unknown>,
+  );
+  triggerInternalHook(hookEvent).catch((err) => {
+    decisionLog.debug("Hook trigger error", { error: String(err) });
   });
 }

@@ -10,7 +10,7 @@ import type { CliDeps } from "../cli/deps.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 
-export type InternalHookEventType = "command" | "session" | "agent" | "gateway" | "message";
+export type InternalHookEventType = "command" | "session" | "agent" | "gateway" | "message" | "model";
 
 export type AgentBootstrapHookContext = {
   workspaceDir: string;
@@ -37,6 +37,49 @@ export type GatewayStartupHookEvent = InternalHookEvent & {
   type: "gateway";
   action: "startup";
   context: GatewayStartupHookContext;
+};
+
+// ============================================================================
+// Model Hook Events
+// ============================================================================
+
+export type ModelFallbackHookContext = {
+  /** The decision type: skip, probe, failed, or succeeded */
+  decision: "skip_candidate" | "probe_cooldown_candidate" | "candidate_failed" | "candidate_succeeded";
+  /** The requested provider (initial model request) */
+  requestedProvider: string;
+  /** The requested model (initial model request) */
+  requestedModel: string;
+  /** The candidate provider being attempted */
+  candidateProvider: string;
+  /** The candidate model being attempted */
+  candidateModel: string;
+  /** Current attempt number (1-indexed) */
+  attempt: number;
+  /** Total number of candidates */
+  total: number;
+  /** The reason for the decision (e.g., rate_limit, overloaded, etc.) */
+  reason?: string;
+  /** HTTP status code if applicable */
+  status?: number;
+  /** Error code if applicable */
+  code?: string;
+  /** Error message if applicable */
+  error?: string;
+  /** Next candidate that will be tried, if any */
+  nextCandidate?: { provider: string; model: string };
+  /** Whether this is the primary/requested candidate */
+  isPrimary?: boolean;
+  /** Whether the requested model matched this candidate */
+  requestedModelMatched?: boolean;
+  /** Whether a fallback candidate is configured */
+  fallbackConfigured?: boolean;
+};
+
+export type ModelFallbackHookEvent = InternalHookEvent & {
+  type: "model";
+  action: "fallback";
+  context: ModelFallbackHookContext;
 };
 
 // ============================================================================
