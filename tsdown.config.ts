@@ -127,5 +127,6 @@ export default defineConfig([
   }),
   nodeBuildConfig({
     entry: ["src/hooks/bundled/*/handler.ts", "src/hooks/llm-slug-generator.ts"],
+    outDir: "dist/hooks",
   }),
 ]);
