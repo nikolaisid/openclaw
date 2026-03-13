@@ -40,6 +40,8 @@ describe("model-fallback hook types", () => {
         requestedModel: "claude-3-opus",
         candidateProvider: "openai",
         candidateModel: "gpt-4-turbo",
+        attempt: 2,
+        total: 3,
         error: "Rate limit exceeded",
       },
     };
@@ -64,6 +66,8 @@ describe("model-fallback hook types", () => {
         requestedModel: "test",
         candidateProvider: "test",
         candidateModel: "test",
+        attempt: 1,
+        total: 2,
       };
       expect(context.decision).toBe(decision);
     }

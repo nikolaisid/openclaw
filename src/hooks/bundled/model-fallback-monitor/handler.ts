@@ -34,14 +34,19 @@ const handler: InternalHookHandler = async (event) => {
       error: rawCtx.error ? String(rawCtx.error) : undefined,
       isPrimary: typeof rawCtx.isPrimary === "boolean" ? rawCtx.isPrimary : undefined,
       // Reconstruct nextCandidate from flat fields or direct nextCandidate object
-      nextCandidate:
-        (rawCtx.nextCandidate as Record<string, unknown> | undefined) ??
-        (rawCtx.nextCandidateProvider && rawCtx.nextCandidateModel
-          ? {
-              provider: String(rawCtx.nextCandidateProvider),
-              model: String(rawCtx.nextCandidateModel),
-            }
-          : undefined),
+      nextCandidate: (() => {
+        const direct = rawCtx.nextCandidate as Record<string, unknown> | undefined;
+        if (direct?.provider && direct?.model) {
+          return { provider: String(direct.provider), model: String(direct.model) };
+        }
+        if (rawCtx.nextCandidateProvider && rawCtx.nextCandidateModel) {
+          return {
+            provider: String(rawCtx.nextCandidateProvider),
+            model: String(rawCtx.nextCandidateModel),
+          };
+        }
+        return undefined;
+      })(),
     };
 
     // Build notification message

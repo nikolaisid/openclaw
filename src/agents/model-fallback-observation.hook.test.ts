@@ -78,7 +78,9 @@ describe("model-fallback-observation: hook triggering", () => {
       requestedProvider: "anthropic",
       requestedModel: "claude-3-opus",
       candidate: { provider: "anthropic", model: "claude-3-sonnet" },
-      reason: "rate_limit_cooldown",
+      reason: "rate_limit",
+      attempt: 1,
+      total: 2,
     });
 
     expect(hooksModule.createInternalHookEvent).toHaveBeenCalledWith(
@@ -87,7 +89,7 @@ describe("model-fallback-observation: hook triggering", () => {
       expect.any(String),
       expect.objectContaining({
         decision: "skip_candidate",
-        reason: "rate_limit_cooldown",
+        reason: "rate_limit",
       }),
     );
 

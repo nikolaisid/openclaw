@@ -282,6 +282,8 @@ export type AgentDefaultsConfig = {
     /** Gateway timeout in ms for sub-agent announce delivery calls (default: 90000). */
     announceTimeoutMs?: number;
   };
+  /** Telegram chat ID for model fallback monitor notifications (e.g., monitoring alerts sent to this chat). */
+  telegramMonitorChat?: string;
   /** Optional sandbox settings for non-main sessions. */
   sandbox?: AgentSandboxConfig;
 };
