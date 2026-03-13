@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 export function resolveBundledHooksDir(): string | undefined {
   const override = process.env.OPENCLAW_BUNDLED_HOOKS_DIR?.trim();
   if (override) {
+    console.log(`[resolveBundledHooksDir] Using env override: ${override}`);
     return override;
   }
 
@@ -12,11 +13,13 @@ export function resolveBundledHooksDir(): string | undefined {
   try {
     const execDir = path.dirname(process.execPath);
     const sibling = path.join(execDir, "hooks", "bundled");
+    console.log(`[resolveBundledHooksDir] Checking bun compile sibling: ${sibling}`);
     if (fs.existsSync(sibling)) {
+      console.log(`[resolveBundledHooksDir] Found bun sibling: ${sibling}`);
       return sibling;
     }
   } catch {
-    // ignore
+    console.log(`[resolveBundledHooksDir] Error checking bun sibling`);
   }
 
   // npm: resolve `<packageRoot>/dist/hooks/bundled` relative to this module (compiled hooks).
@@ -24,11 +27,14 @@ export function resolveBundledHooksDir(): string | undefined {
   try {
     const moduleDir = path.dirname(fileURLToPath(import.meta.url));
     const distBundled = path.join(moduleDir, "bundled");
+    console.log(`[resolveBundledHooksDir] Module dir: ${moduleDir}`);
+    console.log(`[resolveBundledHooksDir] Checking npm path: ${distBundled}`);
     if (fs.existsSync(distBundled)) {
+      console.log(`[resolveBundledHooksDir] Found npm path: ${distBundled}`);
       return distBundled;
     }
-  } catch {
-    // ignore
+  } catch (err) {
+    console.log(`[resolveBundledHooksDir] Error checking npm path: ${err}`);
   }
 
   // dev: resolve `<packageRoot>/src/hooks/bundled` relative to dist/hooks/bundled-dir.js
@@ -37,12 +43,15 @@ export function resolveBundledHooksDir(): string | undefined {
     const moduleDir = path.dirname(fileURLToPath(import.meta.url));
     const root = path.resolve(moduleDir, "..", "..");
     const srcBundled = path.join(root, "src", "hooks", "bundled");
+    console.log(`[resolveBundledHooksDir] Checking dev src path: ${srcBundled}`);
     if (fs.existsSync(srcBundled)) {
+      console.log(`[resolveBundledHooksDir] Found dev src path: ${srcBundled}`);
       return srcBundled;
     }
-  } catch {
-    // ignore
+  } catch (err) {
+    console.log(`[resolveBundledHooksDir] Error checking dev src path: ${err}`);
   }
 
+  console.log(`[resolveBundledHooksDir] No bundled hooks directory found!`);
   return undefined;
 }

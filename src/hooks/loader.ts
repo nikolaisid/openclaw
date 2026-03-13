@@ -68,8 +68,11 @@ export async function loadInternalHooks(
 ): Promise<number> {
   // Check if hooks are enabled
   if (!cfg.hooks?.internal?.enabled) {
+    log.debug("Internal hooks disabled in config");
     return 0;
   }
+
+  log.info("Starting to load internal hooks");
 
   let loadedCount = 0;
 
@@ -81,8 +84,12 @@ export async function loadInternalHooks(
       bundledHooksDir: opts?.bundledHooksDir,
     });
 
+    log.info(`Found ${hookEntries.length} hook entries (before filtering)`);
+
     // Filter by eligibility
     const eligible = hookEntries.filter((entry) => shouldIncludeHook({ entry, config: cfg }));
+
+    log.info(`${eligible.length} hooks eligible after filtering`);
 
     for (const entry of eligible) {
       const hookConfig = resolveHookConfig(cfg, entry.hook.name);
