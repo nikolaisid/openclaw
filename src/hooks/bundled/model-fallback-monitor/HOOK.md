@@ -2,11 +2,16 @@
 name: model-fallback-monitor
 description: "Monitor model fallback attempts and send Telegram notifications"
 metadata:
-  openclaw:
-    emoji: "🔄"
-    events: ["model:fallback"]
-    requires:
-      config: ["agents.defaults.telegramMonitorChat"]
+  {
+    "openclaw":
+      {
+        "emoji": "🔄",
+        "events": ["model:fallback"],
+        "requires": {
+          "config": ["agents.defaults.telegramMonitorChat"]
+        }
+      }
+  }
 ---
 
 # Model Fallback Monitor
