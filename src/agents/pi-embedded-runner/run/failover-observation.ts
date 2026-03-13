@@ -1,4 +1,5 @@
 import { redactIdentifier } from "../../../logging/redact-identifier.js";
+import { createInternalHookEvent, triggerInternalHook } from "../../../hooks/internal-hooks.js";
 import type { AuthProfileFailureReason } from "../../auth-profiles.js";
 import {
   buildApiErrorObservationFields,
@@ -72,5 +73,29 @@ export function createFailoverDecisionLogger(
         `embedded run failover decision: runId=${safeRunId} stage=${normalizedBase.stage} decision=${decision} ` +
         `reason=${reasonText} provider=${safeProvider}/${safeModel} profile=${profileText}`,
     });
+
+    // Trigger model:fallback hook when a fallback happens
+    if (decision === "fallback_model") {
+      const hookEvent = createInternalHookEvent(
+        "model",
+        "fallback",
+        normalizedBase.runId || "unknown",
+        {
+          decision: "candidate_succeeded",
+          requestedProvider: normalizedBase.provider,
+          requestedModel: normalizedBase.model,
+          candidateProvider: normalizedBase.provider,
+          candidateModel: normalizedBase.model,
+          reason: normalizedBase.failoverReason ?? undefined,
+          status: extra?.status,
+          error: normalizedBase.rawError,
+          isPrimary: false,
+          fallbackConfigured: normalizedBase.fallbackConfigured,
+        } as Record<string, unknown>,
+      );
+      triggerInternalHook(hookEvent).catch((err) => {
+        log.debug("Hook trigger error", { error: String(err) });
+      });
+    }
   };
 }
