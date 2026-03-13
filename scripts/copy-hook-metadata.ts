@@ -12,7 +12,7 @@ const projectRoot = path.resolve(__dirname, "..");
 const verbose = process.env.OPENCLAW_BUILD_VERBOSE === "1";
 
 const srcBundled = path.join(projectRoot, "src", "hooks", "bundled");
-const distBundled = path.join(projectRoot, "dist", "bundled");
+const distBundled = path.join(projectRoot, "dist", "hooks", "bundled");
 
 function copyHookMetadata() {
   if (!fs.existsSync(srcBundled)) {

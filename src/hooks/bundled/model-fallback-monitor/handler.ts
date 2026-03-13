@@ -5,13 +5,20 @@ import { createSubsystemLogger } from "../../../logging/subsystem.js";
 
 const log = createSubsystemLogger("model-fallback-monitor");
 
+// Log when handler is loaded
+log.debug("model-fallback-monitor handler loaded");
+
 const handler: InternalHookHandler = async (event) => {
+  // Log all events received (for debugging)
+  log.debug("Event received", { type: event.type, action: event.action });
+
   // Only handle model:fallback events
   if (event.type !== "model" || event.action !== "fallback") {
     return;
   }
 
   try {
+    log.debug("Processing model fallback event");
     const cfg = loadConfig();
     const chatId = cfg?.agents?.defaults?.telegramMonitorChat;
 
@@ -19,6 +26,8 @@ const handler: InternalHookHandler = async (event) => {
       log.debug("Telegram monitor chat not configured");
       return;
     }
+
+    log.debug("Sending Telegram notification", { chatId });
 
     const ctx = event.context as {
       decision: string;
@@ -44,7 +53,7 @@ const handler: InternalHookHandler = async (event) => {
       silent: true, // Don't trigger notification sound
     });
 
-    log.debug("Model fallback notification sent", {
+    log.debug("Model fallback notification sent successfully", {
       decision: ctx.decision,
       candidate: `${ctx.candidateProvider}/${ctx.candidateModel}`,
       chatId,
