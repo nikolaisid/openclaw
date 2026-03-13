@@ -28,7 +28,7 @@ function buildErrorObservationFields(error?: string): {
   };
 }
 
-export function logModelFallbackDecision(params: {
+export async function logModelFallbackDecision(params: {
   decision:
     | "skip_candidate"
     | "probe_cooldown_candidate"
@@ -51,7 +51,7 @@ export function logModelFallbackDecision(params: {
   allowTransientCooldownProbe?: boolean;
   profileCount?: number;
   previousAttempts?: FallbackAttempt[];
-}): void {
+}): Promise<void> {
   const nextText = params.nextCandidate
     ? `${sanitizeForLog(params.nextCandidate.provider)}/${sanitizeForLog(params.nextCandidate.model)}`
     : "none";
@@ -92,7 +92,9 @@ export function logModelFallbackDecision(params: {
       `candidate=${sanitizeForLog(params.candidate.provider)}/${sanitizeForLog(params.candidate.model)} reason=${reasonText} next=${nextText}`,
   });
 
-  // Trigger internal hook for model fallback events (fire-and-forget)
+  // Trigger internal hook for model fallback events
+  // For candidate_succeeded, await to ensure notification arrives before response
+  // For other decisions (skip, probe, failed), fire-and-forget for non-blocking
   const hookEvent = createInternalHookEvent(
     "model",
     "fallback",
@@ -115,7 +117,16 @@ export function logModelFallbackDecision(params: {
       fallbackConfigured: params.fallbackConfigured,
     } as Record<string, unknown>,
   );
-  triggerInternalHook(hookEvent).catch((err) => {
-    decisionLog.debug("Hook trigger error", { error: String(err) });
-  });
+
+  if (params.decision === "candidate_succeeded") {
+    // Await for successful fallbacks so notification arrives before response
+    await triggerInternalHook(hookEvent).catch((err) => {
+      decisionLog.debug("Hook trigger error", { error: String(err) });
+    });
+  } else {
+    // Fire-and-forget for non-success decisions
+    triggerInternalHook(hookEvent).catch((err) => {
+      decisionLog.debug("Hook trigger error", { error: String(err) });
+    });
+  }
 }

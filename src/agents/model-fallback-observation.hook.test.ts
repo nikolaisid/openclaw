@@ -18,8 +18,8 @@ describe("model-fallback-observation: hook triggering", () => {
     vi.spyOn(hooksModule, "createInternalHookEvent");
   });
 
-  it("should trigger model:fallback hook on successful fallback candidate", () => {
-    logModelFallbackDecision({
+  it("should trigger model:fallback hook on successful fallback candidate", async () => {
+    await logModelFallbackDecision({
       decision: "candidate_succeeded",
       requestedProvider: "anthropic",
       requestedModel: "claude-3-opus",
@@ -46,8 +46,8 @@ describe("model-fallback-observation: hook triggering", () => {
     expect(hooksModule.triggerInternalHook).toHaveBeenCalled();
   });
 
-  it("should trigger model:fallback hook on failed fallback candidate", () => {
-    logModelFallbackDecision({
+  it("should trigger model:fallback hook on failed fallback candidate", async () => {
+    await logModelFallbackDecision({
       decision: "candidate_failed",
       requestedProvider: "anthropic",
       requestedModel: "claude-3-opus",
@@ -72,8 +72,8 @@ describe("model-fallback-observation: hook triggering", () => {
     expect(hooksModule.triggerInternalHook).toHaveBeenCalled();
   });
 
-  it("should trigger hook on skip_candidate decision", () => {
-    logModelFallbackDecision({
+  it("should trigger hook on skip_candidate decision", async () => {
+    await logModelFallbackDecision({
       decision: "skip_candidate",
       requestedProvider: "anthropic",
       requestedModel: "claude-3-opus",
@@ -94,8 +94,8 @@ describe("model-fallback-observation: hook triggering", () => {
     expect(hooksModule.triggerInternalHook).toHaveBeenCalled();
   });
 
-  it("should include all context fields in hook event", () => {
-    logModelFallbackDecision({
+  it("should include all context fields in hook event", async () => {
+    await logModelFallbackDecision({
       decision: "candidate_failed",
       runId: "run-123",
       requestedProvider: "anthropic",

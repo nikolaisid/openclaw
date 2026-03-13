@@ -528,6 +528,12 @@ export async function runWithModelFallback<T>(params: {
 
   const hasFallbackCandidates = candidates.length > 1;
 
+  log.debug("Model fallback initialized", {
+    requestedModel: `${params.provider}/${params.model}`,
+    candidateCount: candidates.length,
+    candidates: candidates.map((c) => `${c.provider}/${c.model}`),
+  });
+
   for (let i = 0; i < candidates.length; i += 1) {
     const candidate = candidates[i];
     const isPrimary = i === 0;
@@ -649,6 +655,11 @@ export async function runWithModelFallback<T>(params: {
           allowTransientCooldownProbe: runOptions?.allowTransientCooldownProbe,
           profileCount: profileIds.length,
         });
+
+        log.debug("About to attempt cooldown probe", {
+          candidate: `${candidate.provider}/${candidate.model}`,
+          allowTransientCooldownProbe: runOptions?.allowTransientCooldownProbe,
+        });
       }
     }
 
@@ -660,7 +671,7 @@ export async function runWithModelFallback<T>(params: {
     });
     if ("success" in attemptRun) {
       if (i > 0 || attempts.length > 0 || attemptedDuringCooldown) {
-        logModelFallbackDecision({
+        await logModelFallbackDecision({
           decision: "candidate_succeeded",
           runId: params.runId,
           requestedProvider: params.provider,
@@ -729,6 +740,13 @@ export async function runWithModelFallback<T>(params: {
         status: described.status,
         code: described.code,
       });
+
+      log.debug("Candidate failed, moving to next", {
+        candidate: `${candidate.provider}/${candidate.model}`,
+        reason: described.reason,
+        nextCandidate: candidates[i + 1] ? `${candidates[i + 1].provider}/${candidates[i + 1].model}` : "none",
+      });
+
       logModelFallbackDecision({
         decision: "candidate_failed",
         runId: params.runId,
