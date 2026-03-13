@@ -110,9 +110,6 @@ describe("model-fallback-observation: hook triggering", () => {
       code: "RATE_LIMIT_EXCEEDED",
       error: "Too many requests",
       nextCandidate: { provider: "google", model: "gemini-2.0" },
-      isPrimary: false,
-      requestedModelMatched: false,
-      fallbackConfigured: true,
     });
 
     const callArgs = vi.mocked(hooksModule.createInternalHookEvent).mock.calls[0];
@@ -131,9 +128,6 @@ describe("model-fallback-observation: hook triggering", () => {
       code: "RATE_LIMIT_EXCEEDED",
       error: "Too many requests",
       nextCandidate: { provider: "google", model: "gemini-2.0" },
-      isPrimary: false,
-      requestedModelMatched: false,
-      fallbackConfigured: true,
     });
   });
 });

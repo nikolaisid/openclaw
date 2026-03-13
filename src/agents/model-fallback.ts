@@ -583,10 +583,6 @@ export async function runWithModelFallback<T>(params: {
             reason: decision.reason,
             error: decision.error,
             nextCandidate: candidates[i + 1],
-            isPrimary,
-            requestedModelMatched: requestedModel,
-            fallbackConfigured: hasFallbackCandidates,
-            profileCount: profileIds.length,
           });
           continue;
         }
@@ -626,10 +622,6 @@ export async function runWithModelFallback<T>(params: {
               reason: decision.reason,
               error,
               nextCandidate: candidates[i + 1],
-              isPrimary,
-              requestedModelMatched: requestedModel,
-              fallbackConfigured: hasFallbackCandidates,
-              profileCount: profileIds.length,
             });
             continue;
           }
@@ -649,11 +641,6 @@ export async function runWithModelFallback<T>(params: {
           total: candidates.length,
           reason: decision.reason,
           nextCandidate: candidates[i + 1],
-          isPrimary,
-          requestedModelMatched: requestedModel,
-          fallbackConfigured: hasFallbackCandidates,
-          allowTransientCooldownProbe: runOptions?.allowTransientCooldownProbe,
-          profileCount: profileIds.length,
         });
 
         log.debug("About to attempt cooldown probe", {
@@ -762,9 +749,6 @@ export async function runWithModelFallback<T>(params: {
         code: described.code,
         error: described.message,
         nextCandidate: candidates[i + 1],
-        isPrimary,
-        requestedModelMatched: requestedModel,
-        fallbackConfigured: hasFallbackCandidates,
       });
       await params.onError?.({
         provider: candidate.provider,

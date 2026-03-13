@@ -108,9 +108,6 @@ export async function logModelFallbackDecision(params: {
     code: params.code,
     error: params.error,
     nextCandidate: params.nextCandidate,
-    isPrimary: params.isPrimary,
-    requestedModelMatched: params.requestedModelMatched,
-    fallbackConfigured: params.fallbackConfigured,
   } as Record<string, unknown>);
 
   if (params.decision === "candidate_succeeded") {

@@ -34,7 +34,6 @@ const handler: InternalHookHandler = async (event) => {
       total: typeof rawCtx.total === "number" ? rawCtx.total : undefined,
       reason: typeof rawCtx.reason === "string" ? rawCtx.reason : undefined,
       error: typeof rawCtx.error === "string" ? rawCtx.error : undefined,
-      isPrimary: typeof rawCtx.isPrimary === "boolean" ? rawCtx.isPrimary : undefined,
       // Reconstruct nextCandidate from flat fields or direct nextCandidate object
       nextCandidate: (() => {
         const direct = rawCtx.nextCandidate;
@@ -91,16 +90,14 @@ function buildModelFallbackMessage(ctx: {
   reason?: string;
   error?: string;
   nextCandidate?: { provider: string; model: string };
-  isPrimary?: boolean;
 }): string {
   const decisionEmoji = getDecisionEmoji(ctx.decision);
   const attemptText = ctx.attempt && ctx.total ? ` (${ctx.attempt}/${ctx.total})` : "";
-  const primaryMarker = ctx.isPrimary ? " [Primary]" : "";
 
   let message = "";
 
   // Main header
-  message += `${decisionEmoji} *Model Fallback*${primaryMarker}${attemptText}\n\n`;
+  message += `${decisionEmoji} *Model Fallback*${attemptText}\n\n`;
 
   // Requested and candidate models
   message += `*Requested:* \`${ctx.requestedProvider}/${ctx.requestedModel}\`\n`;

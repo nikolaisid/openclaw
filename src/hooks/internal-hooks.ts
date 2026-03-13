@@ -78,12 +78,6 @@ export type ModelFallbackHookContext = {
   error?: string;
   /** Next candidate that will be tried, if any */
   nextCandidate?: { provider: string; model: string };
-  /** Whether this is the primary/requested candidate */
-  isPrimary?: boolean;
-  /** Whether the requested model matched this candidate */
-  requestedModelMatched?: boolean;
-  /** Whether a fallback candidate is configured */
-  fallbackConfigured?: boolean;
 };
 
 export type ModelFallbackHookEvent = InternalHookEvent & {

@@ -12,13 +12,8 @@ describe("model-fallback hook types", () => {
       attempt: 1,
       total: 2,
       reason: undefined,
-      status: 200,
-      code: "OK",
       error: undefined,
       nextCandidate: { provider: "google", model: "gemini-2.0" },
-      isPrimary: true,
-      requestedModelMatched: true,
-      fallbackConfigured: true,
     };
 
     expect(context.decision).toBe("candidate_succeeded");

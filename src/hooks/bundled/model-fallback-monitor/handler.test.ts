@@ -69,7 +69,6 @@ describe("model-fallback-monitor hook", () => {
         candidateModel: "gpt-4-turbo",
         attempt: 1,
         total: 3,
-        isPrimary: false,
       },
       timestamp: new Date(),
       messages: [],
@@ -170,7 +169,6 @@ describe("model-fallback-monitor hook", () => {
         attempt: 3,
         total: 3,
         reason: "rate_limit",
-        isPrimary: true,
       },
       timestamp: new Date(),
       messages: [],
@@ -183,7 +181,6 @@ describe("model-fallback-monitor hook", () => {
 
     expect(message).toContain("🔍");
     expect(message).toContain("Probing");
-    expect(message).toContain("[Primary]");
   });
 
   it("should handle missing chat ID gracefully", async () => {
