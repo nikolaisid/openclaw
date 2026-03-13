@@ -54,6 +54,7 @@ function clearSupervisorHints() {
 }
 
 function expectLaunchdSupervisedWithoutKickstart(params?: { launchJobLabel?: string }) {
+  delete process.env.OPENCLAW_NO_RESPAWN;
   setPlatform("darwin");
   if (params?.launchJobLabel) {
     process.env.LAUNCH_JOB_LABEL = params.launchJobLabel;
@@ -79,6 +80,7 @@ describe("restartGatewayProcessWithFreshPid", () => {
   });
 
   it("returns supervised when launchd hints are present on macOS (no kickstart)", () => {
+    delete process.env.OPENCLAW_NO_RESPAWN;
     clearSupervisorHints();
     setPlatform("darwin");
     process.env.LAUNCH_JOB_LABEL = "ai.openclaw.gateway";
@@ -99,6 +101,7 @@ describe("restartGatewayProcessWithFreshPid", () => {
   });
 
   it("launchd supervisor never returns failed regardless of triggerOpenClawRestart outcome", () => {
+    delete process.env.OPENCLAW_NO_RESPAWN;
     clearSupervisorHints();
     setPlatform("darwin");
     process.env.OPENCLAW_LAUNCHD_LABEL = "ai.openclaw.gateway";
@@ -115,6 +118,7 @@ describe("restartGatewayProcessWithFreshPid", () => {
   });
 
   it("falls back to plain supervised exit when launchd handoff scheduling fails", () => {
+    delete process.env.OPENCLAW_NO_RESPAWN;
     clearSupervisorHints();
     setPlatform("darwin");
     process.env.XPC_SERVICE_NAME = "ai.openclaw.gateway";
@@ -134,6 +138,7 @@ describe("restartGatewayProcessWithFreshPid", () => {
   });
 
   it("does not schedule kickstart on non-darwin platforms", () => {
+    delete process.env.OPENCLAW_NO_RESPAWN;
     setPlatform("linux");
     process.env.INVOCATION_ID = "abc123";
     process.env.OPENCLAW_LAUNCHD_LABEL = "ai.openclaw.gateway";
@@ -146,6 +151,7 @@ describe("restartGatewayProcessWithFreshPid", () => {
   });
 
   it("returns supervised when XPC_SERVICE_NAME is set by launchd", () => {
+    delete process.env.OPENCLAW_NO_RESPAWN;
     clearSupervisorHints();
     setPlatform("darwin");
     process.env.XPC_SERVICE_NAME = "ai.openclaw.gateway";
@@ -182,6 +188,7 @@ describe("restartGatewayProcessWithFreshPid", () => {
   });
 
   it("returns supervised when OPENCLAW_SYSTEMD_UNIT is set", () => {
+    delete process.env.OPENCLAW_NO_RESPAWN;
     clearSupervisorHints();
     setPlatform("linux");
     process.env.OPENCLAW_SYSTEMD_UNIT = "openclaw-gateway.service";
@@ -191,6 +198,7 @@ describe("restartGatewayProcessWithFreshPid", () => {
   });
 
   it("returns supervised when OpenClaw gateway task markers are set on Windows", () => {
+    delete process.env.OPENCLAW_NO_RESPAWN;
     clearSupervisorHints();
     setPlatform("win32");
     process.env.OPENCLAW_SERVICE_MARKER = "openclaw";
@@ -203,6 +211,7 @@ describe("restartGatewayProcessWithFreshPid", () => {
   });
 
   it("keeps generic service markers out of non-Windows supervisor detection", () => {
+    delete process.env.OPENCLAW_NO_RESPAWN;
     clearSupervisorHints();
     setPlatform("linux");
     process.env.OPENCLAW_SERVICE_MARKER = "openclaw";
@@ -216,6 +225,7 @@ describe("restartGatewayProcessWithFreshPid", () => {
   });
 
   it("returns disabled on Windows without Scheduled Task markers", () => {
+    delete process.env.OPENCLAW_NO_RESPAWN;
     clearSupervisorHints();
     setPlatform("win32");
 
