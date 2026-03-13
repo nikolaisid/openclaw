@@ -24,9 +24,11 @@ const handler: InternalHookHandler = async (event) => {
 
     const ctx = {
       decision: typeof rawCtx.decision === "string" ? rawCtx.decision : "unknown",
-      requestedProvider: typeof rawCtx.requestedProvider === "string" ? rawCtx.requestedProvider : "unknown",
+      requestedProvider:
+        typeof rawCtx.requestedProvider === "string" ? rawCtx.requestedProvider : "unknown",
       requestedModel: typeof rawCtx.requestedModel === "string" ? rawCtx.requestedModel : "unknown",
-      candidateProvider: typeof rawCtx.candidateProvider === "string" ? rawCtx.candidateProvider : "unknown",
+      candidateProvider:
+        typeof rawCtx.candidateProvider === "string" ? rawCtx.candidateProvider : "unknown",
       candidateModel: typeof rawCtx.candidateModel === "string" ? rawCtx.candidateModel : "unknown",
       attempt: typeof rawCtx.attempt === "number" ? rawCtx.attempt : undefined,
       total: typeof rawCtx.total === "number" ? rawCtx.total : undefined,
@@ -45,7 +47,10 @@ const handler: InternalHookHandler = async (event) => {
           const obj = direct as Record<string, unknown>;
           return { provider: String(obj.provider), model: String(obj.model) };
         }
-        if (typeof rawCtx.nextCandidateProvider === "string" && typeof rawCtx.nextCandidateModel === "string") {
+        if (
+          typeof rawCtx.nextCandidateProvider === "string" &&
+          typeof rawCtx.nextCandidateModel === "string"
+        ) {
           return {
             provider: rawCtx.nextCandidateProvider,
             model: rawCtx.nextCandidateModel,
