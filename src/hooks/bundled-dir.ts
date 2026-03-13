@@ -22,27 +22,39 @@ export function resolveBundledHooksDir(): string | undefined {
     console.log(`[resolveBundledHooksDir] Error checking bun sibling`);
   }
 
-  // npm: resolve `<packageRoot>/dist/hooks/bundled` relative to this module (compiled hooks).
-  // This path works when installed via npm: node_modules/openclaw/dist/hooks/bundled-dir.js
+  // npm: resolve `<packageRoot>/dist/hooks/bundled` relative to this module.
+  // bundled-dir.js is compiled to dist/bundled-dir.js
+  // We need to find dist/hooks/bundled/ (new layout) or dist/bundled/ (old layout)
   try {
     const moduleDir = path.dirname(fileURLToPath(import.meta.url));
-    const distBundled = path.join(moduleDir, "bundled");
     console.log(`[resolveBundledHooksDir] Module dir: ${moduleDir}`);
-    console.log(`[resolveBundledHooksDir] Checking npm path: ${distBundled}`);
-    if (fs.existsSync(distBundled)) {
-      console.log(`[resolveBundledHooksDir] Found npm path: ${distBundled}`);
-      return distBundled;
+    
+    // New layout: bundled hooks moved to dist/hooks/bundled/
+    const newLayout = path.join(moduleDir, "hooks", "bundled");
+    console.log(`[resolveBundledHooksDir] Checking new layout (dist/hooks/bundled): ${newLayout}`);
+    if (fs.existsSync(newLayout)) {
+      console.log(`[resolveBundledHooksDir] Found new layout: ${newLayout}`);
+      return newLayout;
+    }
+
+    // Fallback: old layout where bundled hooks were at dist/bundled/
+    const oldLayout = path.join(moduleDir, "bundled");
+    console.log(`[resolveBundledHooksDir] Checking old layout (dist/bundled): ${oldLayout}`);
+    if (fs.existsSync(oldLayout)) {
+      console.log(`[resolveBundledHooksDir] Found old layout: ${oldLayout}`);
+      return oldLayout;
     }
   } catch (err) {
-    console.log(`[resolveBundledHooksDir] Error checking npm path: ${err}`);
+    console.log(`[resolveBundledHooksDir] Error checking npm paths: ${err}`);
   }
 
-  // dev: resolve `<packageRoot>/src/hooks/bundled` relative to dist/hooks/bundled-dir.js
-  // This path works in dev: dist/hooks/bundled-dir.js -> ../../src/hooks/bundled
+  // dev: resolve `<packageRoot>/src/hooks/bundled` relative to dist/bundled-dir.js
+  // If moduleDir is dist/, then the project root is one level up
   try {
     const moduleDir = path.dirname(fileURLToPath(import.meta.url));
-    const root = path.resolve(moduleDir, "..", "..");
+    const root = path.resolve(moduleDir, "..");
     const srcBundled = path.join(root, "src", "hooks", "bundled");
+    console.log(`[resolveBundledHooksDir] Project root: ${root}`);
     console.log(`[resolveBundledHooksDir] Checking dev src path: ${srcBundled}`);
     if (fs.existsSync(srcBundled)) {
       console.log(`[resolveBundledHooksDir] Found dev src path: ${srcBundled}`);
