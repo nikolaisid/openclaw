@@ -1,7 +1,7 @@
-import type { InternalHookHandler } from "../../../hooks/internal-hooks.js";
-import { sendMessageTelegram } from "../../../telegram/send.js";
 import { loadConfig } from "../../../config/config.js";
+import type { InternalHookHandler } from "../../../hooks/internal-hooks.js";
 import { createSubsystemLogger } from "../../../logging/subsystem.js";
+import { sendMessageTelegram } from "../../../telegram/send.js";
 
 const log = createSubsystemLogger("model-fallback-monitor");
 

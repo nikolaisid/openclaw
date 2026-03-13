@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type {
-  ModelFallbackHookEvent,
-  ModelFallbackHookContext,
-} from "../hooks/internal-hooks.js";
+import type { ModelFallbackHookEvent, ModelFallbackHookContext } from "../hooks/internal-hooks.js";
 
 describe("model-fallback hook types", () => {
   it("should have correct ModelFallbackHookContext structure", () => {

@@ -7,10 +7,8 @@ metadata:
       {
         "emoji": "🔄",
         "events": ["model:fallback"],
-        "requires": {
-          "config": ["agents.defaults.telegramMonitorChat"]
-        }
-      }
+        "requires": { "config": ["agents.defaults.telegramMonitorChat"] },
+      },
   }
 ---
 

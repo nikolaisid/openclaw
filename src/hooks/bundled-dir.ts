@@ -24,7 +24,7 @@ export function resolveBundledHooksDir(): string | undefined {
   // We need to find dist/hooks/bundled/ (new layout) or dist/bundled/ (old layout)
   try {
     const moduleDir = path.dirname(fileURLToPath(import.meta.url));
-    
+
     // New layout: bundled hooks moved to dist/hooks/bundled/
     const newLayout = path.join(moduleDir, "hooks", "bundled");
     if (fs.existsSync(newLayout)) {

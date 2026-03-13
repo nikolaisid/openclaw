@@ -10,7 +10,13 @@ import type { CliDeps } from "../cli/deps.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 
-export type InternalHookEventType = "command" | "session" | "agent" | "gateway" | "message" | "model";
+export type InternalHookEventType =
+  | "command"
+  | "session"
+  | "agent"
+  | "gateway"
+  | "message"
+  | "model";
 
 export type AgentBootstrapHookContext = {
   workspaceDir: string;
@@ -45,7 +51,11 @@ export type GatewayStartupHookEvent = InternalHookEvent & {
 
 export type ModelFallbackHookContext = {
   /** The decision type: skip, probe, failed, or succeeded */
-  decision: "skip_candidate" | "probe_cooldown_candidate" | "candidate_failed" | "candidate_succeeded";
+  decision:
+    | "skip_candidate"
+    | "probe_cooldown_candidate"
+    | "candidate_failed"
+    | "candidate_succeeded";
   /** The requested provider (initial model request) */
   requestedProvider: string;
   /** The requested model (initial model request) */

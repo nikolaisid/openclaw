@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { logModelFallbackDecision } from "./model-fallback-observation.js";
 import * as hooksModule from "../hooks/internal-hooks.js";
+import { logModelFallbackDecision } from "./model-fallback-observation.js";
 
 vi.mock("../logging/subsystem.js", () => ({
   createSubsystemLogger: vi.fn(() => ({
@@ -40,7 +40,7 @@ describe("model-fallback-observation: hook triggering", () => {
         candidateModel: "gpt-4-turbo",
         attempt: 1,
         total: 2,
-      })
+      }),
     );
 
     expect(hooksModule.triggerInternalHook).toHaveBeenCalled();
@@ -66,7 +66,7 @@ describe("model-fallback-observation: hook triggering", () => {
         decision: "candidate_failed",
         error: "Rate limit exceeded",
         reason: "rate_limit",
-      })
+      }),
     );
 
     expect(hooksModule.triggerInternalHook).toHaveBeenCalled();
@@ -88,7 +88,7 @@ describe("model-fallback-observation: hook triggering", () => {
       expect.objectContaining({
         decision: "skip_candidate",
         reason: "rate_limit_cooldown",
-      })
+      }),
     );
 
     expect(hooksModule.triggerInternalHook).toHaveBeenCalled();

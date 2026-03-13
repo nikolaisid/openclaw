@@ -83,7 +83,7 @@ describe("model-fallback-monitor hook", () => {
       expect.objectContaining({
         textMode: "markdown",
         silent: true,
-      })
+      }),
     );
 
     // Verify message content
@@ -215,9 +215,7 @@ describe("model-fallback-monitor hook", () => {
   });
 
   it("should handle Telegram send errors gracefully", async () => {
-    vi.mocked(sendMessageTelegram).mockRejectedValueOnce(
-      new Error("Telegram API error")
-    );
+    vi.mocked(sendMessageTelegram).mockRejectedValueOnce(new Error("Telegram API error"));
 
     const event: InternalHookEvent = {
       type: "model",
@@ -241,9 +239,7 @@ describe("model-fallback-monitor hook", () => {
   });
 
   it("should include full error message when available", async () => {
-    const longError = "This is a very long error message that explains ".repeat(
-      3
-    );
+    const longError = "This is a very long error message that explains ".repeat(3);
     const event: InternalHookEvent = {
       type: "model",
       action: "fallback",

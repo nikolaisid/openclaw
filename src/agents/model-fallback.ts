@@ -744,7 +744,9 @@ export async function runWithModelFallback<T>(params: {
       log.debug("Candidate failed, moving to next", {
         candidate: `${candidate.provider}/${candidate.model}`,
         reason: described.reason,
-        nextCandidate: candidates[i + 1] ? `${candidates[i + 1].provider}/${candidates[i + 1].model}` : "none",
+        nextCandidate: candidates[i + 1]
+          ? `${candidates[i + 1].provider}/${candidates[i + 1].model}`
+          : "none",
       });
 
       logModelFallbackDecision({

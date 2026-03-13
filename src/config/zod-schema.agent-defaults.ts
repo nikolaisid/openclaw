@@ -190,9 +190,12 @@ export const AgentDefaultsSchema = z
       })
       .strict()
       .optional(),
-    telegramMonitorChat: z.string().optional().describe(
-      "Telegram chat ID for model fallback monitor notifications (e.g., monitoring alerts sent to this chat)",
-    ),
+    telegramMonitorChat: z
+      .string()
+      .optional()
+      .describe(
+        "Telegram chat ID for model fallback monitor notifications (e.g., monitoring alerts sent to this chat)",
+      ),
     sandbox: AgentSandboxSchema,
   })
   .strict()

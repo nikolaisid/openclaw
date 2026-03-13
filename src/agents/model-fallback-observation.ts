@@ -1,6 +1,6 @@
+import { createInternalHookEvent, triggerInternalHook } from "../hooks/internal-hooks.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { sanitizeForLog } from "../terminal/ansi.js";
-import { createInternalHookEvent, triggerInternalHook } from "../hooks/internal-hooks.js";
 import type { FallbackAttempt, ModelCandidate } from "./model-fallback.types.js";
 import { buildTextObservationFields } from "./pi-embedded-error-observation.js";
 import type { FailoverReason } from "./pi-embedded-helpers.js";
@@ -95,28 +95,23 @@ export async function logModelFallbackDecision(params: {
   // Trigger internal hook for model fallback events
   // For candidate_succeeded, await to ensure notification arrives before response
   // For other decisions (skip, probe, failed), fire-and-forget for non-blocking
-  const hookEvent = createInternalHookEvent(
-    "model",
-    "fallback",
-    params.runId || "unknown",
-    {
-      decision: params.decision,
-      requestedProvider: params.requestedProvider,
-      requestedModel: params.requestedModel,
-      candidateProvider: params.candidate.provider,
-      candidateModel: params.candidate.model,
-      attempt: params.attempt,
-      total: params.total,
-      reason: params.reason ?? undefined,
-      status: params.status,
-      code: params.code,
-      error: params.error,
-      nextCandidate: params.nextCandidate,
-      isPrimary: params.isPrimary,
-      requestedModelMatched: params.requestedModelMatched,
-      fallbackConfigured: params.fallbackConfigured,
-    } as Record<string, unknown>,
-  );
+  const hookEvent = createInternalHookEvent("model", "fallback", params.runId || "unknown", {
+    decision: params.decision,
+    requestedProvider: params.requestedProvider,
+    requestedModel: params.requestedModel,
+    candidateProvider: params.candidate.provider,
+    candidateModel: params.candidate.model,
+    attempt: params.attempt,
+    total: params.total,
+    reason: params.reason ?? undefined,
+    status: params.status,
+    code: params.code,
+    error: params.error,
+    nextCandidate: params.nextCandidate,
+    isPrimary: params.isPrimary,
+    requestedModelMatched: params.requestedModelMatched,
+    fallbackConfigured: params.fallbackConfigured,
+  } as Record<string, unknown>);
 
   if (params.decision === "candidate_succeeded") {
     // Await for successful fallbacks so notification arrives before response
