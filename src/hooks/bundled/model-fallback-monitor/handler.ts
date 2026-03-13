@@ -27,24 +27,43 @@ const handler: InternalHookHandler = async (event) => {
       return;
     }
 
-    log.debug("Sending Telegram notification", { chatId });
+    // Extract context fields (handle both nested and flat field formats)
+    const rawCtx = event.context as Record<string, unknown>;
+    
+    // Log raw context for debugging
+    log.debug("Raw context fields", {
+      decision: rawCtx.decision,
+      nextCandidateProvider: rawCtx.nextCandidateProvider,
+      nextCandidateModel: rawCtx.nextCandidateModel,
+    });
 
-    const ctx = event.context as {
-      decision: string;
-      requestedProvider: string;
-      requestedModel: string;
-      candidateProvider: string;
-      candidateModel: string;
-      attempt?: number;
-      total?: number;
-      reason?: string;
-      error?: string;
-      nextCandidate?: { provider: string; model: string };
-      isPrimary?: boolean;
+    const ctx = {
+      decision: String(rawCtx.decision ?? "unknown"),
+      requestedProvider: String(rawCtx.requestedProvider ?? "unknown"),
+      requestedModel: String(rawCtx.requestedModel ?? "unknown"),
+      candidateProvider: String(rawCtx.candidateProvider ?? "unknown"),
+      candidateModel: String(rawCtx.candidateModel ?? "unknown"),
+      attempt: typeof rawCtx.attempt === "number" ? rawCtx.attempt : undefined,
+      total: typeof rawCtx.total === "number" ? rawCtx.total : undefined,
+      reason: rawCtx.reason ? String(rawCtx.reason) : undefined,
+      error: rawCtx.error ? String(rawCtx.error) : undefined,
+      isPrimary: typeof rawCtx.isPrimary === "boolean" ? rawCtx.isPrimary : undefined,
+      // Reconstruct nextCandidate from flat fields
+      nextCandidate:
+        rawCtx.nextCandidateProvider && rawCtx.nextCandidateModel
+          ? {
+              provider: String(rawCtx.nextCandidateProvider),
+              model: String(rawCtx.nextCandidateModel),
+            }
+          : undefined,
     };
+
+    log.debug("Sending Telegram notification", { chatId, decision: ctx.decision });
 
     // Build notification message
     const message = buildModelFallbackMessage(ctx);
+
+    log.debug("Built message", { messageLength: message.length, messagePreview: message.substring(0, 100) });
 
     // Send to Telegram
     await sendMessageTelegram(String(chatId), message, {
@@ -81,37 +100,43 @@ function buildModelFallbackMessage(ctx: {
   const attemptText = ctx.attempt && ctx.total ? ` (${ctx.attempt}/${ctx.total})` : "";
   const primaryMarker = ctx.isPrimary ? " [Primary]" : "";
 
-  let message = `${decisionEmoji} *Model Fallback*${primaryMarker}${attemptText}\n`;
-  message += `Requested: \`${ctx.requestedProvider}/${ctx.requestedModel}\`\n`;
-  message += `Candidate: \`${ctx.candidateProvider}/${ctx.candidateModel}\`\n`;
+  let message = "";
 
+  // Main header
+  message += `${decisionEmoji} *Model Fallback*${primaryMarker}${attemptText}\n\n`;
+
+  // Requested and candidate models
+  message += `*Requested:* \`${ctx.requestedProvider}/${ctx.requestedModel}\`\n`;
+  message += `*Candidate:* \`${ctx.candidateProvider}/${ctx.candidateModel}\`\n`;
+
+  // Decision-specific content
   if (ctx.decision === "candidate_succeeded") {
-    message += `✅ *Success* — Model switched to candidate\n`;
+    message += `\n✅ *Success* — Model switched to fallback candidate\n`;
   } else if (ctx.decision === "candidate_failed") {
-    message += `❌ *Failed*`;
+    message += `\n❌ *Failed*`;
     if (ctx.reason) {
       message += ` — ${ctx.reason}`;
     }
     message += "\n";
     if (ctx.error) {
-      const shortError = ctx.error.length > 100 ? ctx.error.substring(0, 97) + "..." : ctx.error;
-      message += `Error: \`${shortError}\`\n`;
+      const shortError = ctx.error.length > 80 ? ctx.error.substring(0, 77) + "..." : ctx.error;
+      message += `\n_Error:_ \`${shortError}\``;
     }
   } else if (ctx.decision === "skip_candidate") {
-    message += `⏭️  *Skipped*`;
+    message += `\n⏭️  *Skipped*`;
     if (ctx.reason) {
       message += ` — ${ctx.reason}`;
     }
-    message += "\n";
   } else if (ctx.decision === "probe_cooldown_candidate") {
-    message += `🔍 *Probing* cooldown candidate\n`;
+    message += `\n🔍 *Probing* cooldown candidate`;
     if (ctx.reason) {
-      message += `Reason: ${ctx.reason}\n`;
+      message += ` — ${ctx.reason}`;
     }
   }
 
+  // Next candidate info
   if (ctx.nextCandidate && ctx.decision !== "candidate_succeeded") {
-    message += `Next: \`${ctx.nextCandidate.provider}/${ctx.nextCandidate.model}\``;
+    message += `\n*Next attempt:* \`${ctx.nextCandidate.provider}/${ctx.nextCandidate.model}\``;
   }
 
   return message;
