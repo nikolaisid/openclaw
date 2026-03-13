@@ -5,37 +5,22 @@ import { createSubsystemLogger } from "../../../logging/subsystem.js";
 
 const log = createSubsystemLogger("model-fallback-monitor");
 
-// Log when handler is loaded
-log.debug("model-fallback-monitor handler loaded");
-
 const handler: InternalHookHandler = async (event) => {
-  // Log all events received (for debugging)
-  log.debug("Event received", { type: event.type, action: event.action });
-
   // Only handle model:fallback events
   if (event.type !== "model" || event.action !== "fallback") {
     return;
   }
 
   try {
-    log.debug("Processing model fallback event");
     const cfg = loadConfig();
     const chatId = cfg?.agents?.defaults?.telegramMonitorChat;
 
     if (!chatId) {
-      log.debug("Telegram monitor chat not configured");
       return;
     }
 
     // Extract context fields (handle both nested and flat field formats)
     const rawCtx = event.context as Record<string, unknown>;
-    
-    // Log raw context for debugging
-    log.debug("Raw context fields", {
-      decision: rawCtx.decision,
-      nextCandidateProvider: rawCtx.nextCandidateProvider,
-      nextCandidateModel: rawCtx.nextCandidateModel,
-    });
 
     const ctx = {
       decision: String(rawCtx.decision ?? "unknown"),
@@ -58,12 +43,8 @@ const handler: InternalHookHandler = async (event) => {
           : undefined,
     };
 
-    log.debug("Sending Telegram notification", { chatId, decision: ctx.decision });
-
     // Build notification message
     const message = buildModelFallbackMessage(ctx);
-
-    log.debug("Built message", { messageLength: message.length, messagePreview: message.substring(0, 100) });
 
     // Send to Telegram
     await sendMessageTelegram(String(chatId), message, {
@@ -72,10 +53,9 @@ const handler: InternalHookHandler = async (event) => {
       silent: true, // Don't trigger notification sound
     });
 
-    log.debug("Model fallback notification sent successfully", {
+    log.info("Model fallback notification sent", {
       decision: ctx.decision,
       candidate: `${ctx.candidateProvider}/${ctx.candidateModel}`,
-      chatId,
     });
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err);
