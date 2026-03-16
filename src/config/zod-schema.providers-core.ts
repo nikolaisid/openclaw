@@ -294,6 +294,7 @@ export const TelegramAccountSchema = TelegramAccountSchemaBase.superRefine((valu
 export const TelegramConfigSchema = TelegramAccountSchemaBase.extend({
   accounts: z.record(z.string(), TelegramAccountSchema.optional()).optional(),
   defaultAccount: z.string().optional(),
+  modelFallbackMonitorEnabled: z.boolean().optional(),
 }).superRefine((value, ctx) => {
   normalizeTelegramStreamingConfig(value);
   requireOpenAllowFrom({

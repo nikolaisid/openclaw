@@ -267,4 +267,6 @@ export type TelegramConfig = {
   accounts?: Record<string, TelegramAccountConfig>;
   /** Optional default account id when multiple accounts are configured. */
   defaultAccount?: string;
+  /** Enable model fallback monitor notifications (default: false). */
+  modelFallbackMonitorEnabled?: boolean;
 } & TelegramAccountConfig;
