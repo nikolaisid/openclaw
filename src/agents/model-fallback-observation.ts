@@ -1,3 +1,4 @@
+import { createInternalHookEvent, triggerInternalHook } from "../hooks/internal-hooks.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { sanitizeForLog } from "../terminal/ansi.js";
 import type { FallbackAttempt, ModelCandidate } from "./model-fallback.types.js";
@@ -51,6 +52,29 @@ export function logModelFallbackDecision(params: {
   profileCount?: number;
   previousAttempts?: FallbackAttempt[];
 }): void {
+  const sessionKey = params.runId?.trim() || "model:fallback";
+  const hookContext: Record<string, unknown> = {
+    decision: params.decision,
+    requestedProvider: params.requestedProvider,
+    requestedModel: params.requestedModel,
+    candidateProvider: params.candidate.provider,
+    candidateModel: params.candidate.model,
+    attempt: params.attempt,
+    total: params.total,
+    reason: params.reason,
+    status: params.status,
+    code: params.code,
+    error: params.error,
+    nextCandidateProvider: params.nextCandidate?.provider,
+    nextCandidateModel: params.nextCandidate?.model,
+    isPrimary: params.isPrimary,
+    requestedModelMatched: params.requestedModelMatched,
+    fallbackConfigured: params.fallbackConfigured,
+    allowTransientCooldownProbe: params.allowTransientCooldownProbe,
+    profileCount: params.profileCount,
+  };
+  void triggerInternalHook(createInternalHookEvent("model", "fallback", sessionKey, hookContext));
+
   const nextText = params.nextCandidate
     ? `${sanitizeForLog(params.nextCandidate.provider)}/${sanitizeForLog(params.nextCandidate.model)}`
     : "none";
