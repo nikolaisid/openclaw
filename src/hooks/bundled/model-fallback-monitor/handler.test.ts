@@ -83,7 +83,7 @@ describe("model-fallback-monitor hook", () => {
 
     expect(sendMessageTelegram).toHaveBeenCalledWith(
       "123456789",
-      expect.stringContaining("🎯"),
+      expect.stringContaining("Model fallback switched"),
       expect.objectContaining({
         textMode: "markdown",
         silent: true,
@@ -95,7 +95,7 @@ describe("model-fallback-monitor hook", () => {
     const message = callArgs[1];
     expect(message).toContain("claude-3-opus");
     expect(message).toContain("gpt-4-turbo");
-    expect(message).toContain("Success");
+    expect(message).toContain("active:");
   });
 
   it("should send notification on model:fallback event with candidate_failed and error", async () => {
@@ -125,10 +125,9 @@ describe("model-fallback-monitor hook", () => {
     const callArgs = vi.mocked(sendMessageTelegram).mock.calls[0];
     const message = callArgs[1];
 
-    expect(message).toContain("⚠️");
-    expect(message).toContain("Failed");
-    expect(message).toContain("rate_limit");
-    expect(message).toContain("Rate limit exceeded");
+    expect(message).toContain("Model fallback failed");
+    expect(message).toContain("reason: rate limit");
+    expect(message).toContain("error:");
     expect(message).toContain("gemini-2.0");
   });
 
@@ -156,8 +155,7 @@ describe("model-fallback-monitor hook", () => {
     const callArgs = vi.mocked(sendMessageTelegram).mock.calls[0];
     const message = callArgs[1];
 
-    expect(message).toContain("⏭️");
-    expect(message).toContain("Skipped");
+    expect(message).toContain("Model fallback skipped");
   });
 
   it("should send notification on probe_cooldown_candidate", async () => {
@@ -184,8 +182,7 @@ describe("model-fallback-monitor hook", () => {
     const callArgs = vi.mocked(sendMessageTelegram).mock.calls[0];
     const message = callArgs[1];
 
-    expect(message).toContain("🔍");
-    expect(message).toContain("Probing");
+    expect(message).toContain("Model fallback probing");
   });
 
   it("should handle missing chat ID gracefully", async () => {
@@ -304,6 +301,34 @@ describe("model-fallback-monitor hook", () => {
     expect(message).toContain("...");
     // Verify that truncation happened (error is shortened)
     expect(message).not.toContain(longError);
+  });
+
+  it("should include parsed rate-limit details when available", async () => {
+    const event: InternalHookEvent = {
+      type: "model",
+      action: "fallback",
+      sessionKey: "test-session",
+      context: {
+        decision: "candidate_failed",
+        requestedProvider: "openai",
+        requestedModel: "gpt-4.1-mini",
+        candidateProvider: "openai",
+        candidateModel: "gpt-4o-mini",
+        reason: "rate_limit",
+        error:
+          "Rate limit reached for gpt-4.1-mini in organization org_test on requests per min. Limit: 3.000000 / min. Current: 3.000000 / min. Your limit will reset at 2026-03-06 22:19:54",
+      },
+      timestamp: new Date(),
+      messages: [],
+    };
+
+    await handler(event);
+
+    const callArgs = vi.mocked(sendMessageTelegram).mock.calls[0];
+    const message = callArgs[1];
+    expect(message).toContain("rate:");
+    expect(message).toContain("req 3.000000/3.000000 per min");
+    expect(message).toContain("reset 2026-03-06 22:19:54");
   });
 
   it("should display attempt count in message", async () => {
